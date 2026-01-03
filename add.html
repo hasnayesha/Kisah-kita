@@ -2,76 +2,117 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tambah Kenangan</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter&display=swap');
+body{
+  font-family:'Inter', sans-serif;
+  background:linear-gradient(135deg,#bfdbfe,#fbcfe8);
+}
+.hand{font-family:'Gochi Hand', cursive;}
+</style>
 </head>
 
-<body class="bg-pink-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen flex items-center justify-center p-6">
 
-<div class="bg-white p-6 rounded-xl w-96 space-y-4">
+<div class="bg-white/80 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md space-y-4">
 
-<h1 class="text-xl font-bold text-center">Tambah Kenangan</h1>
+  <a href="index.html" class="text-indigo-500 hover:underline">← Kembali</a>
 
-<select id="event" class="w-full p-2 border rounded">
-  <option value="0">Awal Kita</option>
-  <option value="1">Pertemuan</option>
-</select>
+  <h1 class="hand text-3xl text-center text-pink-500">
+    Tambah Kenangan
+  </h1>
 
-<input id="date" type="date" class="w-full p-2 border rounded">
-<textarea id="text" placeholder="Cerita..." class="w-full p-2 border rounded"></textarea>
+  <!-- PILIH TIMELINE -->
+  <select id="event" class="w-full p-2 rounded border">
+    <option value="awal">Awal</option>
+    <option value="meet">Pertemuan Pertama</option>
+    <option value="jacob">Kajacob-Dejacob</option>
+    <option value="dating">Dating</option>
+    <option value="ldr">LDR</option>
+  </select>
 
-<select id="memory-mood"
-  class="w-full p-2 rounded bg-black/40 border border-white/20">
-  <option value="❤️">❤️ Bahagia</option>
-  <option value="🥺">🥺 Kangen</option>
-  <option value="✨">✨ Spesial</option>
-  <option value="😂">😂 Ketawa</option>
-  <option value="😭">😭 Sedih</option>
-</select>
+  <input id="date" type="date" class="w-full p-2 rounded border">
 
-<input id="img" type="file" accept="image/*">
+  <textarea id="text"
+    placeholder="Tulis ceritanya..."
+    class="w-full p-2 rounded border"></textarea>
 
-<button type="button" onclick="addMemory()">Simpan</button>
+  <!-- GOOGLE DRIVE LINK -->
+  <input id="img"
+    placeholder="Paste link Google Drive foto (opsional)"
+    class="w-full p-2 rounded border"/>
+
+  <select id="mood" class="w-full p-2 rounded border">
+    <option value="❤️">❤️ Bahagia</option>
+    <option value="🥺">🥺 Kangen</option>
+    <option value="✨">✨ Spesial</option>
+    <option value="😂">😂 Ketawa</option>
+    <option value="😭">😭 Sedih</option>
+  </select>
+
+  <button onclick="addMemory()"
+    class="bg-pink-500 hover:bg-pink-600 text-white w-full py-2 rounded-lg font-bold">
+    Simpan
+  </button>
 
 </div>
 
-<script src="data.js"></script>
 <script>
-let timeline = getTimeline();
+/* ===== PASTIKAN DATA TIMELINE ADA ===== */
+const defaultTimeline = [
+  { id:"awal", title:"Awal", date:"2025-03-03", memories:[] },
+  { id:"meet", title:"Pertemuan Pertama", date:"2025-09-15", memories:[] },
+  { id:"jacob", title:"Kajacob-Dejacob", date:"2025-09-26", memories:[] },
+  { id:"dating", title:"Dating", date:"2025-10-21", memories:[] },
+  { id:"ldr", title:"LDR", date:"2026-01-01", memories:[] }
+];
 
-const select = document.getElementById("event");
-timeline.forEach((e,i)=>{
-  select.innerHTML += `<option value="${i}">${e.title}</option>`;
-});
+let timeline = JSON.parse(localStorage.getItem("timeline"));
+if(!timeline){
+  localStorage.setItem("timeline", JSON.stringify(defaultTimeline));
+  timeline = defaultTimeline;
+}
 
+/* ===== KONVERSI LINK DRIVE ===== */
+function driveToImg(url){
+  if(!url) return "";
+  const match = url.match(/\/d\/(.*?)\//);
+  return match
+    ? `https://drive.google.com/uc?export=view&id=${match[1]}`
+    : url;
+}
+
+/* ===== TAMBAH MEMORY ===== */
 function addMemory(){
-  const idx = select.value;
+  const eventId = document.getElementById("event").value;
   const date = document.getElementById("date").value;
   const text = document.getElementById("text").value;
   const mood = document.getElementById("mood").value;
-  const file = document.getElementById("img").files[0];
+  const image = driveToImg(document.getElementById("img").value);
 
   if(!date || !text){
-    alert("Tanggal & cerita wajib 🤍");
+    alert("Tanggal & cerita wajib diisi 🤍");
     return;
   }
 
-  const save = (image)=>{
-    timeline[idx].memories.push({date,text,mood,image});
-    saveTimeline(timeline);
-    window.location.href = "memory.html";
-  };
-
-  if(file){
-    const reader = new FileReader();
-    reader.onload = ()=> save(reader.result);
-    reader.readAsDataURL(file);
-  } else {
-    save(null);
+  const event = timeline.find(e => e.id === eventId);
+  if(!event){
+    alert("Timeline tidak ditemukan");
+    return;
   }
+
+  event.memories.push({ date, text, mood, image });
+  localStorage.setItem("timeline", JSON.stringify(timeline));
+
+  alert("Kenangan tersimpan 💖");
+  window.location.href = "memory.html";
 }
 </script>
-
 
 </body>
 </html>
