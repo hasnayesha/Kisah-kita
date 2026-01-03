@@ -51,11 +51,7 @@ fetch(URL)
    const card=document.createElement("div");
    card.className="bg-white/40 p-4 rounded-xl space-y-2";
    card.innerHTML=`
-    ${m.image ? `
-    <img 
-      src="https://drive.google.com/uc?export=view&id=${m.image}"
-      class="rounded-lg w-full max-h-60 object-cover"
-    />` : ""}
+    ${m.image ? `<img src="https://drive.google.com/uc?export=view&id=${m.image}"class="rounded-lg w-full max-h-60 object-cover">` : ""}
     <div class="text-sm text-gray-600">${m.date}</div>
     <p>${m.text}</p>
     <div class="text-xl">${m.mood}</div>
@@ -71,4 +67,5 @@ fetch(URL)
 
 </body>
 </html>
+
 
