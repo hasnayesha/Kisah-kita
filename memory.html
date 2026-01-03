@@ -28,26 +28,23 @@ const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:
 fetch(URL)
 .then(r => r.text())
 .then(t => {
-    // Membersihkan data JSON dari Google Sheets
     const json = JSON.parse(t.substr(47).slice(0, -2));
     const rows = json.table.rows;
+    const wall = document.getElementById("wall");
+    wall.innerHTML = ""; 
 
     const data = {};
 
     rows.forEach(r => {
-        // Mengambil data mentah (f adalah formatted value, v adalah value mentah)
-        // Kita gunakan .f jika ada, agar format tanggal di spreadsheet tetap rapi
-        const cols = r.c.map(c => c ? (c.f ? c.f : c.v) : "");
-        
-        // Sesuaikan index ini [0,1,2,3,4,5] dengan urutan kolom di Sheet kamu
-        // Biasanya: [Timestamp, Timeline/Kategori, Tanggal, Cerita, Mood, Link Foto]
-        const [_, timeline, date, text, mood, photoUrl] = cols;
+        // Ambil teks yang tampil di sheet (c.f) supaya tanggalnya rapi
+        const cols = r.c.map(c => c ? (c.f || c.v) : "");
+        const [timestamp, timeline, date, text, mood, photoUrl] = cols;
 
-        // Ekstrak ID Gambar dari URL Google Drive
+        // AMBIL ID FOTO: Kita potong link panjangnya supaya sisa ID-nya saja
         let imageId = "";
-        if (photoUrl && photoUrl.includes("id=")) {
+        if (photoUrl.includes("id=")) {
             imageId = photoUrl.split("id=")[1].split("&")[0];
-        } else if (photoUrl && photoUrl.includes("d/")) {
+        } else if (photoUrl.includes("d/")) {
             imageId = photoUrl.split("d/")[1].split("/")[0];
         }
 
@@ -55,42 +52,35 @@ fetch(URL)
         data[timeline].push({ date, text, mood, imageId });
     });
 
-    const wall = document.getElementById("wall");
-    wall.innerHTML = ""; // Bersihkan wall sebelum mengisi
-
     Object.keys(data).forEach(tl => {
-        const sec = document.createElement("div");
-        sec.innerHTML = `<h2 class="hand text-3xl text-blue-500 mb-4">✨ ${tl}</h2>`;
-        
-        const grid = document.createElement("div");
-        grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
-
+        let cardsHtml = "";
         data[tl].forEach(m => {
-            const card = document.createElement("div");
-            card.className = "bg-white/60 backdrop-blur-sm p-4 rounded-2xl shadow-sm space-y-3 border border-white/50";
+            // Kita pakai link thumbnail supaya ringan dan tembus blokir browser
+            const finalImg = `https://drive.google.com/thumbnail?id=${m.imageId}&sz=w600`;
             
-            // Link gambar menggunakan format thumbnail agar lebih ringan dan pasti muncul
-            const imgSrc = m.imageId ? `https://drive.google.com/uc?export=view&id=${m.imageId}` : "";
-
-            card.innerHTML = `
-                ${m.imageId ? `<img src="${imgSrc}" class="rounded-xl w-full h-48 object-cover shadow-inner" onerror="this.src='https://placehold.co/400x300?text=Foto+Privat'">` : ""}
-                <div>
-                    <div class="text-[10px] font-bold text-pink-400 uppercase tracking-widest">${m.date}</div>
-                    <p class="text-gray-700 leading-relaxed mt-1">${m.text}</p>
-                    <div class="text-2xl mt-2">${m.mood}</div>
+            cardsHtml += `
+                <div class="bg-white/50 p-4 rounded-2xl shadow-sm border border-white">
+                    ${m.imageId ? `<img src="${finalImg}" class="rounded-lg w-full h-48 object-cover mb-3">` : ""}
+                    <div class="text-[10px] text-pink-500 font-bold">${m.date}</div>
+                    <p class="text-gray-800 my-2">${m.text}</p>
+                    <div class="text-2xl">${m.mood}</div>
                 </div>
             `;
-            grid.appendChild(card);
         });
 
-        sec.appendChild(grid);
-        wall.appendChild(sec);
+        wall.innerHTML += `
+            <div>
+                <h2 class="hand text-3xl text-blue-500 mb-4">✨ ${tl}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${cardsHtml}</div>
+            </div>
+        `;
     });
 });
 </script>
 
 </body>
 </html>
+
 
 
 
