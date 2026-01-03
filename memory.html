@@ -22,52 +22,76 @@ background:linear-gradient(135deg,#bfdbfe,#fbcfe8,#e0e7ff);
 <div id="wall" class="space-y-10"></div>
 
 <script>
-const SHEET_ID="PASTE_ID_SHEET_KAMU";
-const URL=`https://docs.google.com/spreadsheets/d/13tPD7Rdj7VVh983Uu1pwaednH0Pa6rsjYxE7oq8K4Vc/gviz/tq?tqx=out:json`;
+const SHEET_ID = "13tPD7Rdj7VVh983Uu1pwaednH0Pa6rsjYxE7oq8K4Vc";
+const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
 fetch(URL)
-.then(r=>r.text())
-.then(t=>{
- const json=JSON.parse(t.substr(47).slice(0,-2));
- const rows=json.table.rows;
+.then(r => r.text())
+.then(t => {
+    // Membersihkan data JSON dari Google Sheets
+    const json = JSON.parse(t.substr(47).slice(0, -2));
+    const rows = json.table.rows;
 
- const data={};
+    const data = {};
 
- rows.forEach(r=>{
-  const [_,timeline,date,text,mood,photo]=r.c.map(c=>c?.v||"");
-  if(!data[timeline])data[timeline]=[];
-  data[timeline].push({date,text,mood,photo});
- });
+    rows.forEach(r => {
+        // Mengambil data mentah (f adalah formatted value, v adalah value mentah)
+        // Kita gunakan .f jika ada, agar format tanggal di spreadsheet tetap rapi
+        const cols = r.c.map(c => c ? (c.f ? c.f : c.v) : "");
+        
+        // Sesuaikan index ini [0,1,2,3,4,5] dengan urutan kolom di Sheet kamu
+        // Biasanya: [Timestamp, Timeline/Kategori, Tanggal, Cerita, Mood, Link Foto]
+        const [_, timeline, date, text, mood, photoUrl] = cols;
 
- const wall=document.getElementById("wall");
+        // Ekstrak ID Gambar dari URL Google Drive
+        let imageId = "";
+        if (photoUrl && photoUrl.includes("id=")) {
+            imageId = photoUrl.split("id=")[1].split("&")[0];
+        } else if (photoUrl && photoUrl.includes("d/")) {
+            imageId = photoUrl.split("d/")[1].split("/")[0];
+        }
 
- Object.keys(data).forEach(tl=>{
-  const sec=document.createElement("div");
-  sec.innerHTML=`<h2 class="hand text-3xl text-blue-500 mb-4">✨ ${tl}</h2>`;
-  const grid=document.createElement("div");
-  grid.className="grid grid-cols-1 md:grid-cols-2 gap-4";
+        if (!data[timeline]) data[timeline] = [];
+        data[timeline].push({ date, text, mood, imageId });
+    });
 
-  data[tl].forEach(m=>{
-   const card=document.createElement("div");
-   card.className="bg-white/40 p-4 rounded-xl space-y-2";
-   const imgSrc = m.imageId ? `https://drive.google.com/uc?export=view&id=${m.imageId}` : "";
-   card.innerHTML=`
-    ${m.imageId ? `<img src="${imgSrc}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ""}
-    <div class="text-sm text-gray-600">${m.date}</div>
-    <p>${m.text}</p>
-    <div class="text-xl">${m.mood}</div>
-   `;
-   grid.appendChild(card);
-  });
+    const wall = document.getElementById("wall");
+    wall.innerHTML = ""; // Bersihkan wall sebelum mengisi
 
-  sec.appendChild(grid);
-  wall.appendChild(sec);
- });
+    Object.keys(data).forEach(tl => {
+        const sec = document.createElement("div");
+        sec.innerHTML = `<h2 class="hand text-3xl text-blue-500 mb-4">✨ ${tl}</h2>`;
+        
+        const grid = document.createElement("div");
+        grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+
+        data[tl].forEach(m => {
+            const card = document.createElement("div");
+            card.className = "bg-white/60 backdrop-blur-sm p-4 rounded-2xl shadow-sm space-y-3 border border-white/50";
+            
+            // Link gambar menggunakan format thumbnail agar lebih ringan dan pasti muncul
+            const imgSrc = m.imageId ? `https://drive.google.com/uc?export=view&id=${m.imageId}` : "";
+
+            card.innerHTML = `
+                ${m.imageId ? `<img src="${imgSrc}" class="rounded-xl w-full h-48 object-cover shadow-inner" onerror="this.src='https://placehold.co/400x300?text=Foto+Privat'">` : ""}
+                <div>
+                    <div class="text-[10px] font-bold text-pink-400 uppercase tracking-widest">${m.date}</div>
+                    <p class="text-gray-700 leading-relaxed mt-1">${m.text}</p>
+                    <div class="text-2xl mt-2">${m.mood}</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        sec.appendChild(grid);
+        wall.appendChild(sec);
+    });
 });
 </script>
 
 </body>
 </html>
+
 
 
 
