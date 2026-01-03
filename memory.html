@@ -56,7 +56,7 @@ fetch(URL)
         let cardsHtml = "";
         data[tl].forEach(m => {
             // Kita pakai link thumbnail supaya ringan dan tembus blokir browser
-            const finalImg = `https://drive.google.com/thumbnail?id=${m.imageId}&sz=w600`;
+            const finalImg = `https://lh3.googleusercontent.com/u/0/d/${m.imageId}=w600-h600-p-k-no-iv1`;
             
             cardsHtml += `
                 <div class="bg-white/50 p-4 rounded-2xl shadow-sm border border-white">
@@ -80,6 +80,7 @@ fetch(URL)
 
 </body>
 </html>
+
 
 
 
