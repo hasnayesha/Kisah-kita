@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Tambah Kenangan</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-pink-100 min-h-screen flex items-center justify-center">
+
+<div class="bg-white p-6 rounded-xl w-96 space-y-4">
+
+<h1 class="text-xl font-bold text-center">Tambah Kenangan</h1>
+
+<select id="event" class="w-full p-2 border rounded">
+  <option value="0">Awal Kita</option>
+  <option value="1">Pertemuan</option>
+</select>
+
+<input id="date" type="date" class="w-full p-2 border rounded">
+<textarea id="text" placeholder="Cerita..." class="w-full p-2 border rounded"></textarea>
+
+<select id="memory-mood"
+  class="w-full p-2 rounded bg-black/40 border border-white/20">
+  <option value="❤️">❤️ Bahagia</option>
+  <option value="🥺">🥺 Kangen</option>
+  <option value="✨">✨ Spesial</option>
+  <option value="😂">😂 Ketawa</option>
+  <option value="😭">😭 Sedih</option>
+</select>
+
+<input id="img" type="file" accept="image/*">
+
+<button type="button" onclick="addMemory()">Simpan</button>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+let timeline = getTimeline();
+
+const select = document.getElementById("event");
+timeline.forEach((e,i)=>{
+  select.innerHTML += `<option value="${i}">${e.title}</option>`;
+});
+
+function addMemory(){
+  const idx = select.value;
+  const date = document.getElementById("date").value;
+  const text = document.getElementById("text").value;
+  const mood = document.getElementById("mood").value;
+  const file = document.getElementById("img").files[0];
+
+  if(!date || !text){
+    alert("Tanggal & cerita wajib 🤍");
+    return;
+  }
+
+  const save = (image)=>{
+    timeline[idx].memories.push({date,text,mood,image});
+    saveTimeline(timeline);
+    window.location.href = "memory.html";
+  };
+
+  if(file){
+    const reader = new FileReader();
+    reader.onload = ()=> save(reader.result);
+    reader.readAsDataURL(file);
+  } else {
+    save(null);
+  }
+}
+</script>
+
+
+</body>
+</html>

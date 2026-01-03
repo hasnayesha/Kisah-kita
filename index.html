@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Cerita Kita ❤️</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter&display=swap');
+body{
+  font-family:'Inter';
+  background:linear-gradient(135deg,#bfdbfe,#fbcfe8,#e0e7ff);
+}
+.hand{font-family:'Gochi Hand';}
+.star{fill:#f9a8d4;cursor:pointer;transition:.3s}
+.star:hover{fill:#93c5fd;r:10}
+.line{stroke:rgba(255,255,255,.6);stroke-width:2}
+</style>
+</head>
+
+<body class="text-white min-h-screen flex items-center justify-center p-6">
+
+<div class="max-w-4xl w-full bg-white/20 backdrop-blur-xl rounded-3xl p-8 space-y-8">
+
+<div class="text-center">
+<h1 class="hand text-5xl text-pink-500">Cerita Kita</h1>
+<p class="text-gray-700">Seperti bintang, setiap momen saling terhubung ✨</p>
+</div>
+
+<div class="flex justify-center gap-4">
+<a href="memory.html" class="bg-pink-400 px-6 py-2 rounded-full">🖼️ Memory Wall</a>
+<a href="add.html" class="bg-blue-400 px-6 py-2 rounded-full">➕ Tambah Kenangan</a>
+</div>
+
+<svg id="constellation" width="100%" height="300"></svg>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+const timeline = getTimeline();
+
+const svg = document.getElementById("constellation");
+const w = svg.clientWidth;
+const h = 260;
+
+timeline.forEach((e,i)=>{
+  const x = (i+1)*(w/(timeline.length+1));
+  const y = h/2 + Math.sin(i)*50;
+
+  if(i>0){
+    const px = i*(w/(timeline.length+1));
+    const py = h/2 + Math.sin(i-1)*50;
+    svg.innerHTML += `<line x1="${px}" y1="${py}" x2="${x}" y2="${y}" stroke="#93c5fd"/>`;
+  }
+
+  svg.innerHTML += `
+    <circle cx="${x}" cy="${y}" r="7" fill="#f9a8d4"/>
+    <text x="${x}" y="${y+22}" text-anchor="middle"
+      fill="#f472b6" font-size="12">${e.title}</text>
+  `;
+});
+</script>
+
+
+</body>
+</html>

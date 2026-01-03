@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Memory Wall</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter&display=swap');
+body{
+font-family:'Inter';
+background:linear-gradient(135deg,#bfdbfe,#fbcfe8,#e0e7ff);
+}
+.hand{font-family:'Gochi Hand';}
+</style>
+</head>
+
+<body class="min-h-screen p-6 text-gray-800 overflow-visible">
+
+<a href="index.html" class="text-pink-500">← Kembali</a>
+<h1 class="hand text-4xl text-center text-pink-500 mb-8">Memory Wall</h1>
+
+<div id="wall"></div>
+
+<script src="data.js"></script>
+<script>
+const timeline = getTimeline();
+const wall = document.getElementById("wall");
+
+timeline.forEach(event=>{
+  const section = document.createElement("div");
+  section.innerHTML = `<h2 class="text-xl font-bold mt-6">${event.title}</h2>`;
+
+  if(event.memories.length === 0){
+    section.innerHTML += `<p class="text-gray-400">Belum ada kenangan</p>`;
+  }
+
+  event.memories.forEach((m,i)=>{
+    section.innerHTML += `
+      <div class="bg-white/20 p-3 rounded my-2">
+        ${m.image ? `<img src="${m.image}" class="rounded mb-2">` : ""}
+        <div class="text-sm">${m.date}</div>
+        <div>${m.text}</div>
+        <button onclick="deleteMemory('${event.id}',${i})"
+          class="text-red-400">Hapus</button>
+      </div>
+    `;
+  });
+
+  wall.appendChild(section);
+});
+
+function deleteMemory(id,index){
+  if(!confirm("Hapus kenangan ini?")) return;
+  const e = timeline.find(x=>x.id===id);
+  e.memories.splice(index,1);
+  saveTimeline(timeline);
+  location.reload();
+}
+</script>
+
+</body>
+</html>
