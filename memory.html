@@ -2,105 +2,67 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memory Wall</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter&display=swap');
 body{
-  font-family:'Inter', sans-serif;
-  background:linear-gradient(135deg,#bfdbfe,#fbcfe8,#e0e7ff);
+font-family:'Inter';
+background:linear-gradient(135deg,#bfdbfe,#fbcfe8,#e0e7ff);
 }
-.hand{font-family:'Gochi Hand', cursive;}
+.hand{font-family:'Gochi Hand';}
 </style>
 </head>
 
-<body class="min-h-screen p-6 text-gray-800">
+<body class="min-h-screen p-6">
 
-<a href="index.html" class="text-pink-500 hover:underline">← Kembali</a>
-
-<h1 class="hand text-4xl text-center text-pink-500 mb-8">
-  Memory Wall
-</h1>
+<a href="index.html" class="text-pink-500">← Kembali</a>
+<h1 class="hand text-4xl text-center text-pink-500 mb-10">Memory Wall</h1>
 
 <div id="wall" class="space-y-10"></div>
 
 <script>
-const wall = document.getElementById("wall");
+const SHEET_ID="PASTE_ID_SHEET_KAMU";
+const URL=`https://docs.google.com/spreadsheets/d/13tPD7Rdj7VVh983Uu1pwaednH0Pa6rsjYxE7oq8K4Vc/gviz/tq?tqx=out:json`;
 
-/* ===== LOAD DATA ===== */
-let timeline = JSON.parse(localStorage.getItem("timeline")) || [];
+fetch(URL)
+.then(r=>r.text())
+.then(t=>{
+ const json=JSON.parse(t.substr(47).slice(0,-2));
+ const rows=json.table.rows;
 
-/* ===== RENDER ===== */
-function render(){
-  wall.innerHTML="";
+ const data={};
 
-  if(timeline.length === 0){
-    wall.innerHTML = `
-      <div class="text-center italic text-gray-600">
-        Belum ada kenangan 🤍
-      </div>`;
-    return;
-  }
+ rows.forEach(r=>{
+  const [_,timeline,date,text,mood,photo]=r.c.map(c=>c?.v||"");
+  if(!data[timeline])data[timeline]=[];
+  data[timeline].push({date,text,mood,photo});
+ });
 
-  timeline.forEach((event, ei)=>{
-    const section = document.createElement("div");
-    section.className = "space-y-4";
+ const wall=document.getElementById("wall");
 
-    section.innerHTML = `
-      <h2 class="hand text-3xl text-blue-500">✨ ${event.title}</h2>
-      <p class="text-sm text-gray-600">${event.date || ""}</p>
-    `;
+ Object.keys(data).forEach(tl=>{
+  const sec=document.createElement("div");
+  sec.innerHTML=`<h2 class="hand text-3xl text-blue-500 mb-4">✨ ${tl}</h2>`;
+  const grid=document.createElement("div");
+  grid.className="grid grid-cols-1 md:grid-cols-2 gap-4";
 
-    if(!event.memories || event.memories.length === 0){
-      section.innerHTML += `
-        <div class="bg-white/40 p-4 rounded-xl italic">
-          Kenangan akan kita isi pelan-pelan 🤍
-        </div>`;
-    } else {
-      const grid = document.createElement("div");
-      grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
-
-      event.memories.forEach((m, mi)=>{
-        const card = document.createElement("div");
-        card.className = "bg-white/40 p-4 rounded-xl space-y-2";
-
-        card.innerHTML = `
-          <div class="flex justify-between text-sm">
-            <span>${m.date}</span>
-            <button onclick="del(${ei},${mi})">🗑️</button>
-          </div>
-
-          ${m.image ? `
-            <img src="${m.image}"
-              class="rounded-lg w-full max-h-60 object-cover">
-          ` : ""}
-
-          <p>${m.text}</p>
-          <div class="text-xl">${m.mood || ""}</div>
-        `;
-
-        grid.appendChild(card);
-      });
-
-      section.appendChild(grid);
-    }
-
-    wall.appendChild(section);
+  data[tl].forEach(m=>{
+   const card=document.createElement("div");
+   card.className="bg-white/40 p-4 rounded-xl space-y-2";
+   card.innerHTML=`
+    ${m.photo?`<img src="${m.photo}" class="rounded-lg w-full max-h-60 object-cover">`:""}
+    <div class="text-sm text-gray-600">${m.date}</div>
+    <p>${m.text}</p>
+    <div class="text-xl">${m.mood}</div>
+   `;
+   grid.appendChild(card);
   });
-}
 
-/* ===== DELETE ===== */
-function del(ei, mi){
-  if(!confirm("Hapus kenangan ini? 🥺")) return;
-  timeline[ei].memories.splice(mi,1);
-  localStorage.setItem("timeline", JSON.stringify(timeline));
-  render();
-}
-
-render();
+  sec.appendChild(grid);
+  wall.appendChild(sec);
+ });
+});
 </script>
 
 </body>
