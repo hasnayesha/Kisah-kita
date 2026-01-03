@@ -2,65 +2,120 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cerita Kita ❤️</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter&display=swap');
+
 body{
-  font-family:'Inter';
+  font-family:'Inter', sans-serif;
   background:linear-gradient(135deg,#bfdbfe,#fbcfe8,#e0e7ff);
 }
-.hand{font-family:'Gochi Hand';}
-.star{fill:#f9a8d4;cursor:pointer;transition:.3s}
-.star:hover{fill:#93c5fd;r:10}
-.line{stroke:rgba(255,255,255,.6);stroke-width:2}
+.hand{font-family:'Gochi Hand', cursive;}
+.star{
+  fill:#f9a8d4;
+  cursor:pointer;
+  transition:.3s;
+}
+.star:hover{
+  fill:#93c5fd;
+  r:10;
+}
+.line{
+  stroke:rgba(255,255,255,.6);
+  stroke-width:2;
+}
 </style>
 </head>
 
 <body class="text-white min-h-screen flex items-center justify-center p-6">
 
-<div class="max-w-4xl w-full bg-white/20 backdrop-blur-xl rounded-3xl p-8 space-y-8">
+<div class="max-w-4xl w-full bg-white/30 backdrop-blur-xl rounded-3xl p-8 space-y-8">
 
-<div class="text-center">
-<h1 class="hand text-5xl text-pink-500">Cerita Kita</h1>
-<p class="text-gray-700">Seperti bintang, setiap momen saling terhubung ✨</p>
+  <!-- HEADER -->
+  <div class="text-center">
+    <h1 class="hand text-5xl text-pink-500">Cerita Kita</h1>
+    <p class="text-gray-700">
+      Seperti bintang, setiap momen saling terhubung ✨
+    </p>
+  </div>
+
+  <!-- BUTTON -->
+  <div class="flex justify-center gap-4">
+    <a href="memory.html"
+       class="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-full">
+      🖼️ Memory Wall
+    </a>
+    <a href="add.html"
+       class="bg-blue-400 hover:bg-blue-500 text-white px-6 py-2 rounded-full">
+      ➕ Tambah Kenangan
+    </a>
+  </div>
+
+  <!-- RASI BINTANG -->
+  <svg id="constellation" width="100%" height="300"></svg>
+
 </div>
 
-<div class="flex justify-center gap-4">
-<a href="memory.html" class="bg-pink-400 px-6 py-2 rounded-full">🖼️ Memory Wall</a>
-<a href="add.html" class="bg-blue-400 px-6 py-2 rounded-full">➕ Tambah Kenangan</a>
-</div>
-
-<svg id="constellation" width="100%" height="300"></svg>
-
-</div>
-
-<script src="data.js"></script>
 <script>
-const timeline = getTimeline();
+/* ===== DATA TIMELINE (SUMBER UTAMA) ===== */
+const defaultTimeline = [
+  { id:"awal", title:"Awal", date:"2025-03-03", memories:[] },
+  { id:"meet", title:"Pertemuan Pertama", date:"2025-09-15", memories:[] },
+  { id:"jacob", title:"Kajacob-Dejacob", date:"2025-09-26", memories:[] },
+  { id:"dating", title:"Dating", date:"2025-10-21", memories:[] },
+  { id:"ldr", title:"LDR", date:"2026-01-01", memories:[] }
+];
 
+// ⛔ jangan overwrite kalau sudah ada
+let timeline = JSON.parse(localStorage.getItem("timeline"));
+if (!timeline) {
+  localStorage.setItem("timeline", JSON.stringify(defaultTimeline));
+  timeline = defaultTimeline;
+}
+
+/* ===== RASI BINTANG ===== */
 const svg = document.getElementById("constellation");
-const w = svg.clientWidth;
-const h = 260;
+const width = svg.clientWidth;
+const height = 300;
 
-timeline.forEach((e,i)=>{
-  const x = (i+1)*(w/(timeline.length+1));
-  const y = h/2 + Math.sin(i)*50;
+timeline.forEach((event, i) => {
+  const x = (i + 1) * (width / (timeline.length + 1));
+  const y = height / 2 + Math.sin(i) * 60;
 
-  if(i>0){
-    const px = i*(w/(timeline.length+1));
-    const py = h/2 + Math.sin(i-1)*50;
-    svg.innerHTML += `<line x1="${px}" y1="${py}" x2="${x}" y2="${y}" stroke="#93c5fd"/>`;
+  // garis penghubung
+  if (i > 0) {
+    const px = i * (width / (timeline.length + 1));
+    const py = height / 2 + Math.sin(i - 1) * 60;
+    svg.innerHTML += `
+      <line x1="${px}" y1="${py}"
+            x2="${x}" y2="${y}" class="line" />
+    `;
   }
 
+  // bintang
   svg.innerHTML += `
-    <circle cx="${x}" cy="${y}" r="7" fill="#f9a8d4"/>
-    <text x="${x}" y="${y+22}" text-anchor="middle"
-      fill="#f472b6" font-size="12">${e.title}</text>
+    <circle cx="${x}" cy="${y}" r="7"
+      class="star"
+      onclick="openMemory('${event.id}')"/>
+    <text x="${x}" y="${y + 25}"
+      text-anchor="middle"
+      fill="#ec4899"
+      font-size="12">
+      ${event.title}
+    </text>
   `;
 });
-</script>
 
+/* ===== KLIK BINTANG → MEMORY WALL ===== */
+function openMemory(id){
+  localStorage.setItem("activeTimeline", id);
+  window.location.href = "memory.html";
+}
+</script>
 
 </body>
 </html>
