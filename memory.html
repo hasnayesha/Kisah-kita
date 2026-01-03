@@ -50,8 +50,9 @@ fetch(URL)
   data[tl].forEach(m=>{
    const card=document.createElement("div");
    card.className="bg-white/40 p-4 rounded-xl space-y-2";
+   const imgSrc = m.imageId ? `https://drive.google.com/uc?export=view&id=${m.imageId}` : "";
    card.innerHTML=`
-    ${m.image ? `<img src="https://drive.google.com/uc?export=view&id=${m.image}"class="rounded-lg w-full max-h-60 object-cover">` : ""}
+    ${m.imageId ? `<img src="${imgSrc}" class="rounded-lg w-full max-h-60 object-cover" onerror="this.style.display='none'">` : ""}
     <div class="text-sm text-gray-600">${m.date}</div>
     <p>${m.text}</p>
     <div class="text-xl">${m.mood}</div>
@@ -67,5 +68,6 @@ fetch(URL)
 
 </body>
 </html>
+
 
 
