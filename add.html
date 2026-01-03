@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tambah Kenangan</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter&display=swap');
 body{
@@ -14,56 +12,79 @@ body{
   background:linear-gradient(135deg,#bfdbfe,#fbcfe8);
 }
 .hand{font-family:'Gochi Hand', cursive;}
+.hidden { display: none; }
 </style>
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-6">
 
-<div class="bg-white/80 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md space-y-4">
+<div class="bg-white/80 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md space-y-4 shadow-xl">
 
   <a href="index.html" class="text-indigo-500 hover:underline">← Kembali</a>
 
-  <h1 class="hand text-3xl text-center text-pink-500">
-    Tambah Kenangan
-  </h1>
+  <h1 class="hand text-3xl text-center text-pink-500">Tambah Kenangan</h1>
 
-  <!-- PILIH TIMELINE -->
-  <select id="event" class="w-full p-2 rounded border">
-    <option value="awal">Awal</option>
-    <option value="meet">Pertemuan Pertama</option>
-    <option value="jacob">Kajacob-Dejacob</option>
-    <option value="dating">Dating</option>
-    <option value="ldr">LDR</option>
-  </select>
+  <div class="flex bg-gray-200 p-1 rounded-xl mb-4">
+    <button onclick="switchMode('local')" id="btn-local" class="flex-1 py-2 rounded-lg text-sm font-bold bg-white text-pink-500 shadow-sm transition-all">Simpan Sendiri</button>
+    <button onclick="switchMode('share')" id="btn-share" class="flex-1 py-2 rounded-lg text-sm font-bold text-gray-500 transition-all">Berbagi</button>
+  </div>
 
-  <input id="date" type="date" class="w-full p-2 rounded border">
+  <div id="form-local" class="space-y-4">
+    <select id="event" class="w-full p-2 rounded border focus:ring-2 focus:ring-pink-300 outline-none">
+      <option value="awal">Awal</option>
+      <option value="meet">Pertemuan Pertama</option>
+      <option value="jacob">Kajacob-Dejacob</option>
+      <option value="dating">Dating</option>
+      <option value="ldr">LDR</option>
+    </select>
+    <input id="date" type="date" class="w-full p-2 rounded border focus:ring-2 focus:ring-pink-300 outline-none">
+    <textarea id="text" placeholder="Tulis ceritanya..." class="w-full p-2 rounded border h-24 focus:ring-2 focus:ring-pink-300 outline-none"></textarea>
+    <input id="img" placeholder="Paste link Google Drive foto (opsional)" class="w-full p-2 rounded border focus:ring-2 focus:ring-pink-300 outline-none"/>
+    <select id="mood" class="w-full p-2 rounded border focus:ring-2 focus:ring-pink-300 outline-none">
+      <option value="❤️">❤️ Bahagia</option>
+      <option value="🥺">🥺 Kangen</option>
+      <option value="✨">✨ Spesial</option>
+      <option value="😂">😂 Ketawa</option>
+      <option value="😭">😭 Sedih</option>
+    </select>
+    <button onclick="addMemory()" class="bg-pink-500 hover:bg-pink-600 text-white w-full py-3 rounded-xl font-bold transition-transform active:scale-95">Simpan ke Browser 💖</button>
+  </div>
 
-  <textarea id="text"
-    placeholder="Tulis ceritanya..."
-    class="w-full p-2 rounded border"></textarea>
-
-  <!-- GOOGLE DRIVE LINK -->
-  <input id="img"
-    placeholder="Paste link Google Drive foto (opsional)"
-    class="w-full p-2 rounded border"/>
-
-  <select id="mood" class="w-full p-2 rounded border">
-    <option value="❤️">❤️ Bahagia</option>
-    <option value="🥺">🥺 Kangen</option>
-    <option value="✨">✨ Spesial</option>
-    <option value="😂">😂 Ketawa</option>
-    <option value="😭">😭 Sedih</option>
-  </select>
-
-  <button onclick="addMemory()"
-    class="bg-pink-500 hover:bg-pink-600 text-white w-full py-2 rounded-lg font-bold">
-    Simpan
-  </button>
+  <div id="form-share" class="hidden space-y-4 text-center py-6">
+    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm text-blue-700 leading-relaxed">
+      Gunakan link di bawah ini agar kenanganmu bisa dilihat oleh pasanganmu juga melalui Google Sheets!
+    </div>
+    <a href="https://docs.google.com/forms/d/e/KODE_FORM_KAMU/viewform" target="_blank" 
+       class="block bg-indigo-500 hover:bg-indigo-600 text-white w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all">
+       Buka Google Form 🚀
+    </a>
+    <p class="text-xs text-gray-400">Pastikan sudah mengunggah foto di form tersebut.</p>
+  </div>
 
 </div>
 
 <script>
-/* ===== PASTIKAN DATA TIMELINE ADA ===== */
+/* ===== LOGIKA SWITCH MODE ===== */
+function switchMode(mode) {
+    const localDiv = document.getElementById('form-local');
+    const shareDiv = document.getElementById('form-share');
+    const btnLocal = document.getElementById('btn-local');
+    const btnShare = document.getElementById('btn-share');
+
+    if(mode === 'local') {
+        localDiv.classList.remove('hidden');
+        shareDiv.classList.add('hidden');
+        btnLocal.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-white text-pink-500 shadow-sm";
+        btnShare.className = "flex-1 py-2 rounded-lg text-sm font-bold text-gray-500";
+    } else {
+        localDiv.classList.add('hidden');
+        shareDiv.classList.remove('hidden');
+        btnLocal.className = "flex-1 py-2 rounded-lg text-sm font-bold text-gray-500";
+        btnShare.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-white text-pink-500 shadow-sm";
+    }
+}
+
+/* ===== LOGIKA SIMPAN LOCAL ===== */
 const defaultTimeline = [
   { id:"awal", title:"Awal", date:"2025-03-03", memories:[] },
   { id:"meet", title:"Pertemuan Pertama", date:"2025-09-15", memories:[] },
@@ -72,22 +93,18 @@ const defaultTimeline = [
   { id:"ldr", title:"LDR", date:"2026-01-01", memories:[] }
 ];
 
-let timeline = JSON.parse(localStorage.getItem("timeline"));
-if(!timeline){
-  localStorage.setItem("timeline", JSON.stringify(defaultTimeline));
-  timeline = defaultTimeline;
-}
+let timeline = JSON.parse(localStorage.getItem("timeline")) || defaultTimeline;
 
-/* ===== KONVERSI LINK DRIVE ===== */
 function driveToImg(url){
   if(!url) return "";
-  const match = url.match(/\/d\/(.*?)\//);
-  return match
-    ? `https://drive.google.com/uc?export=view&id=${match[1]}`
-    : url;
+  // Menangani berbagai jenis link Google Drive (uc, d/, atau id=)
+  let id = "";
+  if (url.includes("id=")) id = url.split("id=")[1].split("&")[0];
+  else if (url.includes("d/")) id = url.split("d/")[1].split("/")[0];
+  
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w800` : url;
 }
 
-/* ===== TAMBAH MEMORY ===== */
 function addMemory(){
   const eventId = document.getElementById("event").value;
   const date = document.getElementById("date").value;
@@ -100,19 +117,15 @@ function addMemory(){
     return;
   }
 
-  const event = timeline.find(e => e.id === eventId);
-  if(!event){
-    alert("Timeline tidak ditemukan");
-    return;
-  }
+  const eventIndex = timeline.findIndex(e => e.id === eventId);
+  if(eventIndex === -1) return;
 
-  event.memories.push({ date, text, mood, image });
+  timeline[eventIndex].memories.push({ date, text, mood, image });
   localStorage.setItem("timeline", JSON.stringify(timeline));
 
-  alert("Kenangan tersimpan 💖");
+  alert("Kenangan tersimpan secara lokal! ✨");
   window.location.href = "memory.html";
 }
 </script>
-
 </body>
 </html>
